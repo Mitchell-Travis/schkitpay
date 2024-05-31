@@ -1,0 +1,181 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Title -->
+  {% if title  %}
+  <title>Schkit - {{ title }}</title>
+  {% else %}
+  <title>Schkit </title>
+  {% endif %}
+
+  <!-- Required Meta Tags Always Come First -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="../../static/icons/favicon-96x96.png">
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- CSS Implementing Plugins -->
+  <link rel="stylesheet" href="../../static/vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="../../static/vendor/slick-carousel/slick/slick.css">
+
+  <!-- CSS Front Template -->
+  <link rel="stylesheet" href="../../static/css/theme.min.css">
+  <!-- <link rel="manifest" href="manifest.json"> -->
+</head>
+<body>
+  <!-- ========== HEADER ========== -->
+  <header id="header" class="header header-bg-transparent header-abs-top">
+    <div class="header-section">
+      <div id="logoAndNav" class="container-fluid">
+        <!-- Nav -->
+        <nav class="navbar navbar-expand header-navbar">
+
+          
+          <!-- Button -->
+          <div class="ml-auto">
+            <a class="btn btn-sm btn-link text-body" href="{% url 'home' %}">
+              <i class="fas fa-angle-left fa-sm mr-1"></i> Go to main
+            </a>
+          </div>
+          <!-- End Button -->
+        </nav>
+        <!-- End Nav -->
+      </div>
+    </div>
+  </header>
+  <!-- ========== END HEADER ========== -->
+
+  <!-- ========== MAIN ========== -->
+  <main id="content" role="main">
+    <!-- Form -->
+    <div class="d-flex align-items-center position-relative vh-lg-100">
+      <div class="col-lg-5 col-xl-4 d-none d-lg-flex align-items-center bg-dark vh-lg-100 px-0" style="background-image: url(../../static/svg/components/abstract-shapes-20.png);">
+        <div class="w-100 p-5">
+
+
+
+          
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="row no-gutters">
+          <div class="col-md-8 col-lg-7 col-xl-6 offset-md-2 offset-lg-2 offset-xl-3 space-top-3 space-lg-0">
+            <!-- Form -->
+            <form id="myForm" class="js-validate" method="POST" action="{% url 'sign-in' %}">
+              {% csrf_token %}
+              <!-- Title -->
+              <div class="mb-5 mb-md-7">
+                <h1 class="h2">Welcome back</h1>
+                <p>Login to manage your account.</p>
+              </div>
+              <!-- End Title -->
+
+              {% if messages %}
+              {% for message in messages %}
+                <div class="alert {{ message.tags }} alert-dismissible text-danger" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+
+              
+              <div class="js-form-message form-group">
+                <label class="input-label" for="signinSrEmail">Email</label>
+                <input type="text" class="form-control" name="email" id="signinSrEmail" tabindex="1" placeholder="Email" aria-label="Email address" required
+                       data-msg="Please enter a valid email address">
+              </div>
+              <!-- End Form Group -->
+
+              <!-- Form Group -->
+              <div class="js-form-message form-group">
+                <label class="input-label" for="signinSrPassword" tabindex="0">
+                  <span class="d-flex justify-content-between align-items-center">
+                    Password
+                    <a class="link-underline text-capitalize font-weight-normal" href="#">Forgot Password?</a>
+                  </span>
+                </label>
+                <input type="password" class="form-control" name="password" id="signinSrPassword" tabindex="2" placeholder="********" aria-label="********" required
+                       data-msg="Your password is invalid. Please try again.">
+              </div>
+              <!-- End Form Group -->
+
+              {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+              {% endif %}
+
+              <!-- Button -->
+              <div class="row align-items-center mb-5">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                  <span class="font-size-1 text-muted">Don't have an account?</span>
+                  <a class="font-size-1 font-weight-bold" href="{% url 'sign-up' %}">Signup</a>
+                </div>
+
+                <div class="col-sm-6 text-sm-right" class="page-preloader">
+                  <button type="submit" id="submitButton" class="btn btn-primary transition-3d-hover">
+                  <span id="loadingIndicator" style="display: none;">
+                    Loading    
+                    <i class="fas fa-spinner fa-spin"></i> <!-- Loading icon -->
+                  </span>
+                  <span id="buttonText">Sign In</span>
+                </button>
+                </div>
+              </div>
+              <!-- End Button -->
+            </form>
+            <!-- End Form -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End Form -->
+  </main>
+  <!-- ========== END MAIN ========== -->
+
+  <!-- JS Global Compulsory  -->
+  <script src="../../static/vendor/jquery/dist/jquery.min.js"></script>
+  <script src="../../static/vendor/jquery-migrate/dist/jquery-migrate.min.js"></script>
+  <script src="../../static/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- JS Implementing Plugins -->
+  <script src="../../static/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
+  <script src="../../static/vendor/slick-carousel/slick/slick.js"></script>
+
+  <!-- JS Front -->
+  <script src="../../static/js/theme.min.js"></script>
+
+  <!-- JS Plugins Init. -->
+  <script>
+    $(document).on('ready', function () {
+      // INITIALIZATION OF SLICK CAROUSEL
+      // =======================================================
+      $('.js-slick-carousel').each(function() {
+        var slickCarousel = $.HSCore.components.HSSlickCarousel.init($(this));
+      });
+
+
+      // INITIALIZATION OF FORM VALIDATION
+      // =======================================================
+      $('.js-validate').each(function () {
+        var validation = $.HSCore.components.HSValidation.init($(this));
+      });
+    });
+  </script>
+
+  <!-- IE Support -->
+  <script>
+    if (/MSIE \d|Trident.*rv:/.test(navigator.userAgent)) document.write('<script src="../../static/vendor/babel-polyfill/dist/polyfill.js"><\/script>');
+  </script>
+  <!-- JS External File -->
+  <script src="../../static/js/form_submit.js"></script>
+</body>
+</html>
