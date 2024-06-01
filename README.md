@@ -21,8 +21,6 @@ SchkitPay is a digital wallet application built with Python and Django. Users ca
 
 ## Screenshots
 
-![Top Up](wellet/static/wallet/top-up.png)
-
 ![Transfer](wellet/static/wallet/transfer.png)
 
 ![Wallet](wellet/static/wallet/wallet.png)
