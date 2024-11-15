@@ -15,8 +15,9 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import F
 from django.core.mail import send_mail
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from django.utils import timezone
+from django.db import transaction
 
 
 from wellet.models import (
@@ -253,101 +254,124 @@ def withdrew_balance(request, *args, **kwargs):
 	return render(request, 'wallet/withdrew.html', context)
 
 
+
 @login_required
 def transfer(request, *args, **kwargs):
-	context = {}
-	confirmed_code = ConfirmationCode.objects.filter(user=request.user)
-	bank_card = BankCard.objects.filter(user=request.user)
-	card_holder = CardHolder.objects.filter(user=request.user)
+    context = {}
+    confirmed_code = ConfirmationCode.objects.filter(user=request.user)
+    bank_card = BankCard.objects.filter(user=request.user)
+    card_holder = CardHolder.objects.filter(user=request.user)
+
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        try:
+            username = request.POST['username']
+            amount = request.POST['amount']
+
+            sendName = request.user  # Sender
+            try:
+                receiverName = User.objects.get(username=username)  # Receiver
+            except User.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Receiver does not exist'})
+
+            if receiverName == sendName:
+                return JsonResponse({'success': False, 'error': 'Unable to transfer to yourself'})
+
+            try:
+                amount = Decimal(amount)
+                if amount <= 0:
+                    return JsonResponse({'success': False, 'error': 'Enter a valid amount'})
+            except InvalidOperation:
+                return JsonResponse({'success': False, 'error': 'Enter a valid amount'})
+
+            # Ensure receiver has card holders
+            receivers = CardHolder.objects.filter(user=receiverName)
+            if not receivers.exists():
+                return JsonResponse({'success': False, 'error': 'Receiver has no card holders'})
+
+            holder_balance = card_holder.first().balance
+            if holder_balance < amount:
+                return JsonResponse({'success': False, 'error': 'Amount entered exceeds available balance'})
+
+            with transaction.atomic():
+                # Deduct from sender
+                CardHolder.objects.filter(user=request.user).update(
+                    balance=F('balance') - amount
+                )
+                # Add to receiver
+                CardHolder.objects.filter(user=receiverName).update(
+                    balance=F('balance') + amount
+                )
+
+                # Record the transaction for sender
+                Record.objects.create(
+                    user=request.user,
+                    transfer_amount=amount,
+                    recevier_name=receiverName.username
+                )
+
+                # Record the transaction for receiver
+                Record.objects.create(
+                    user=receiverName,
+                    amount_recevied=amount,
+                    recevier_name=sendName.username
+                )
+
+                # Send email to receiver (uncomment if needed)
+                # receiverEmail = receiverName.email
+                # send_mail(
+                #     'You Have Received ' + str(amount) + '¥ In Your Schkit Pay',
+                #     'Hello, ' + str(receiverName) + '!\n' + str(sendName) + ' has sent $' + str(amount) +
+                #     ' to your Schkit Pay\nUpdated Wallet Balance :$' + str(receiverBalance) + '\n\n\nContact us: schkit01@gmail.com\n',
+                #     "(Schkit Pay) Schkit pay mitchellsherman01@gmail.com",
+                #     [receiverEmail]
+                # )
+
+                return JsonResponse({'success': True, 'redirect_url': '/wallet/verify_passcode/'})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': 'An error occurred: ' + str(e)})
+
+    context = {
+        'bank_card': bank_card,
+        'card_holder': card_holder,
+    }
+    return render(request, 'wallet/transfer.html', context)
 
 
-	user=request.user
 
-	# Transfer code logic
-	card_pass_code = VerifiedPassCode.objects.filter(user=request.user)
-	
-	form = VerifiedPassCodeForm(
-		request.POST or None
+@login_required
+def passcode_verification(request):
+    form = VerifiedPassCodeForm(request.POST or None)
 
-	)
+    # Fetch necessary data related to the user
+    bank_card = BankCard.objects.filter(user=request.user).first()
+    card_holder = CardHolder.objects.filter(user=request.user).first()
 
-	if form.is_valid():
-		pass_code = form.save(commit=False)
-		verified_pass_code = form.cleaned_data['verified_pass_code']
-		code = CardPassCode.objects.filter(user=request.user)
+    recipient_username = request.session.get('recipient_username', 'N/A')
+    amount = request.session.get('amount', '0.00')
 
-		for pay_code in code:
-			sent = pay_code.pass_code
+    if request.method == 'POST':
+        if form.is_valid():
+            verified_pass_code = form.cleaned_data['verified_pass_code']
+            card_pass_code = CardPassCode.objects.filter(user=request.user).first()
 
-		if verified_pass_code == sent:
-			pass_code.user = request.user
-			pass_code.save()
-		else:
-			messages.error(request, f'Invalid code. Please check pass code')
-			return redirect('transfer')
-	# End
+            if card_pass_code and verified_pass_code == card_pass_code.pass_code:
+                # Passcode verified successfully
+                VerifiedPassCode.objects.create(user=request.user, verified_pass_code=verified_pass_code)
+                
+                amount = Decimal(amount)  # Use the amount from the session
+                return render(request, 'wallet/passcode_success.html', {'bank_card': bank_card, 'card_holder': card_holder, 'amount': amount})
+            else:
+                messages.error(request, 'Invalid passcode. Please try again.')
+                return redirect('verify-passcode')
 
-	if request.method == 'POST':
-
-		try:
-			username = request.POST['username']
-			amount = request.POST['amount']
-
-			sendName = User.objects.get(username=request.user) # Sender
-			receiverName = User.objects.get(username=username) # Receiver
-			receivers = CardHolder.objects.filter(user=receiverName) # Receiver
-		except:
-			messages.error(request, f'Username and Email does not exist')
-			return redirect('transfer')
+    context = {
+        'form': form,
+        'recipient_username': recipient_username,
+        'amount': amount,
+        'card_holder': card_holder,
+    }
+    return render(request, 'wallet/passcode_verification.html', context)
 
 
-		if receiverName == sendName:
-			messages.error(request, f'Unable to transfer to yourself')
-			return redirect('transfer')
-		
 
-		for receiver in receivers:
-			holder_name = receiver.first_name + ' ' + receiver.last_name
-			receiverBalance = Decimal(receiver.balance) + Decimal(amount)
-
-		for holder in card_holder:
-			holder_balance = holder.balance
-
-		if Decimal(holder_balance) >= Decimal(amount):
-			CardHolder.objects.filter(id__in=card_holder).update(
-				balance=F('balance') - Decimal(amount)
-			)
-			CardHolder.objects.filter(id__in=receivers).update(
-				balance=F('balance') + Decimal(amount)
-			)
-			user = User.objects.get(cardholder__in=receivers)
-			receiverEmail=user.email
-
-			trans = Record.objects.filter(user=user).create(
-				transfer_amount=amount
-			)
-			trans.user = request.user
-			trans.save()
-
-			rec = Record.objects.filter(user=user).create(
-				amount_recevied=amount, recevier_name=str(sendName)
-			)
-			rec.user=user
-			rec.save()
-
-			# send_mail('You Have Received '+str(amount)+'¥ In Your Schkit Pay','Hello, '+str(receiverName)+'!\n'+str(sendName)+' has sent $'+str(amount)+' to your Schkit Pay\nUpdated Wallet Balance :$'+str(receiverBalance)+'\n\n\nContact us: schkit01@gmail.com\n', "(Schkit Pay) Schkit pay mitchellsherman01@gmail.com", [receiverEmail])
-			return render(request, 'wallet/transfer_success.html', {'bank_card':bank_card, 'card_holder':card_holder, 'amount':amount})
-		
-		else:
-			messages.error(request, f'Amount entered exceeds available Balance')
-			return redirect('transfer')
-
-   
-
-	context = {
-		'form':form,
-		'bank_card':bank_card,
-		'card_holder':card_holder,
-	}
-
-	return render(request, 'wallet/transfer.html',context)

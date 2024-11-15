@@ -1,0 +1,179 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Schkit Pay</title>
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="{% static 'icons/favicon-96x96.png' %}">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'wallet/css/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'wallet/css/signin.css' %}">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <!-- Custom Styles -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      text-align: center;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 24px;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+    }
+
+    .payee-info, .amount, .payment-method {
+      color: #000000;
+      margin: 20px 0;
+    }
+
+    .pin-entry {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .pin-entry input {
+      width: 40px;
+      height: 40px;
+      margin: 0 5px;
+      text-align: center;
+      font-size: 24px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .number-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .number, .backspace {
+      background-color: #ffffff;
+      border: none;
+      padding: 5px;
+      font-size: 24px;
+      cursor: pointer;
+      border-radius: 5px;
+      color: #000000;
+    }
+
+    .number:hover, .backspace:hover {
+      background-color: #ddd;
+    }
+
+    .backspace {
+      grid-column: span 3;
+    }
+  </style>
+</head>
+<body>
+  <main class="js-validate form-signin p-5">
+    <form role="form" action="{% url 'verify-passcode' %}" enctype="multipart/form-data" method="POST">
+      {% csrf_token %}
+      <div class="container">
+        <div class="d-sm-flex justify-content-sm-between align-items-sm-center">
+          <a class="close-button" href="{% url 'transfer' %}">
+            ✖
+          </a>
+        </div>
+        <div class="payee-info">Pay to {{ recipient_username }}</div> <!-- Display the recipient username -->
+        <div class="amount">${{ amount }}</div> <!-- Display the amount being sent -->
+        <div class="payment-method">
+          <span class="method-details">My balance (${{ card_holder.balance }})</span> <!-- Display user's balance -->
+        </div>
+
+        <!-- Verification passcode input -->
+        <div class="form-group">
+          <input type="password" class="form-control custom-input-style" name="verified_pass_code" id="verified_pass_code" placeholder="Enter your passcode" required>
+        </div>
+
+        <div class="number-pad">
+          <button type="button" class="number" data-value="1">1</button>
+          <button type="button" class="number" data-value="2">2</button>
+          <button type="button" class="number" data-value="3">3</button>
+          <button type="button" class="number" data-value="4">4</button>
+          <button type="button" class="number" data-value="5">5</button>
+          <button type="button" class="number" data-value="6">6</button>
+          <button type="button" class="number" data-value="7">7</button>
+          <button type="button" class="number" data-value="8">8</button>
+          <button type="button" class="number" data-value="9">9</button>
+          <button type="button" class="number" data-value="0">0</button>
+          <button type="button" class="backspace">⌫</button>
+        </div>
+
+        
+      </div>
+    </form>
+  </main>
+
+  <!-- JS -->
+  <script src="{% static 'wallet/vendor/jquery/dist/jquery.min.js' %}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const numberPad = document.querySelector('.number-pad');
+      const passcodeInput = document.getElementById('verified_pass_code');
+      let currentInputIndex = 0;
+
+      // Function to handle input from number pad
+      function handleNumberPadInput(number) {
+        if (currentInputIndex < 6) { // Adjust to match the maxlength of your passcode input
+          passcodeInput.value += number;
+          currentInputIndex++;
+          if (currentInputIndex === 6) { // Adjust if your passcode length changes
+            // Optionally, you can trigger form submission or validation here
+            document.querySelector('form').submit(); // Example of form submission
+          }
+        }
+      }
+
+      // Event listener for number pad buttons
+      numberPad.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default form submission behavior
+
+        if (event.target.classList.contains('number')) {
+          handleNumberPadInput(event.target.textContent);
+        } else if (event.target.classList.contains('backspace')) {
+          if (currentInputIndex > 0) {
+            currentInputIndex--;
+            passcodeInput.value = passcodeInput.value.slice(0, -1); // Remove last character
+          }
+        }
+      });
+
+      // Optional: Prevent form submission on Enter keypress
+      passcodeInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          return false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

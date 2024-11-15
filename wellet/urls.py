@@ -7,7 +7,7 @@ from .utils import (
 	delete_transactions,
 	scan_to_transfer,
 	# payee,
-	transactions
+	transactions	
 )
 
 
@@ -26,6 +26,8 @@ urlpatterns = [
 	path('scan/', scan_to_transfer, name='scan'),
 	path('top-up/', pay_views.top_up_balance, name='top-up'),
 	path('transfer/', pay_views.transfer, name='transfer'),
-	path('transactions/', transactions, name='transactions')
+	path('transactions/', transactions, name='transactions'),
+	path('verify_passcode/', pay_views.passcode_verification, name='verify-passcode')
+
 ]
 

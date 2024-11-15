@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Services</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        body {
+    background-color: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    padding: 10px;
+}
+
+.card {
+    background-color: #1d1d1d;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+.card-content {
+    display: flex;
+    justify-content: space-between;
+}
+
+.card-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: 10px;
+}
+
+.card-section i {
+    font-size: 2rem;
+    color: #fff;
+}
+
+.card-section span {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.wallet-balance {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #bbb;
+}
+
+.money-wallet {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.financial-services h2, .daily-services h2 {
+    margin: 0 0 10px;
+    font-size: 1.2rem;
+}
+
+.service-grid {
+    display: flex;
+    justify-content: space-around;
+}
+
+.service {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: 10px;
+}
+
+.service i {
+    font-size: 1.5rem;
+    color: #fff;
+}
+
+.service span {
+    margin-top: 10px;
+    text-align: center;
+}
+
+    </style>
+</head>
+<body>
+    <main>
+        <section class="card money-wallet">
+            <div class="card-content">
+                <div class="card-section">
+                    <i class="fas fa-money-check-alt"></i>
+                    <span>Money</span>
+                </div>
+                <div class="card-section">
+                    <i class="fas fa-wallet"></i>
+                    <span>Wallet</span>
+                    <span class="wallet-balance">*****</span>
+                </div>
+            </div>
+        </section>
+        <section class="card financial-services">
+            <h2>Financial Services</h2>
+            <div class="service-grid">
+                <div class="service">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Card Repay</span>
+                </div>
+                <div class="service">
+                    <i class="fas fa-piggy-bank"></i>
+                    <span>Wealth</span>
+                </div>
+                <div class="service">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Insurance</span>
+                </div>
+            </div>
+        </section>
+        <section class="card daily-services">
+            <h2>Daily Services</h2>
+            <div class="service-grid">
+                <div class="service">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Mobile Top Up</span>
+                </div>
+                <div class="service">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Utilities</span>
+                </div>
+                <div class="service">
+                    <i class="fas fa-heart"></i>
+                    <span>Tencent Charity</span>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

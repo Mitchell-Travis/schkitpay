@@ -48,6 +48,7 @@ class BankCard(models.Model):
     def __str__(self):
         return str(f"{self.user} - {self.card_number}")
 
+ 
 # Card Holder Model
 class CardHolder(models.Model):
     user                = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='user')

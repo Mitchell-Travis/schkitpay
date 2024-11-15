@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
 
-   <!-- Title -->
+  <!-- Title -->
   {% if title %}
   <title>Schkit Pay - {{ title }}</title>
   {% else %}
@@ -14,159 +14,561 @@
   <!-- Required Meta Tags Always Come First -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
   <!-- Favicon -->
-  <link rel="shortcut icon" href="../../static/icons/favicon-96x96.png">
+  <link rel="shortcut icon" href="{% static 'icons/favicon-96x96.png' %}">
 
   <!-- Google Fonts -->
   <link href="//fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
 
   <!-- CSS Implementing Plugins -->
-  <link rel="stylesheet" href="../../static/wallet/vendor/font-awesome/css/all.min.css">
-  <link rel="stylesheet" href="../../static/vendor/animate.css/animate.min.css">
+  <link rel="stylesheet" href="{% static 'wallet/vendor/font-awesome/css/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/animate.css/animate.min.css' %}">
 
   <!-- CSS Space Template -->
-  <link rel="stylesheet" href="../../static/wallet/css/theme.css">
-  <link rel="stylesheet" href="../../static/wallet/css/signin.css">
-  <link rel="stylesheet" href="../../static/css/theme.css">
+  <link rel="stylesheet" href="{% static 'wallet/css/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'wallet/css/signin.css' %}">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+
+  <style>
+   body {
+    background-color: #efefef;
+    color: #1d72b8;
+  }
+
+  .form-signin {
+    max-width: 380px;
+    margin: auto;
+  }
+
+  .transfer-amount {
+    font-size: 2.5rem;
+    margin: 1rem 0;
+    text-align: left;
+    color: #000000;
+  }
+
+  .number-pad {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin: 1rem 0;
+  }
+
+  .number, .transfer {
+    background-color: #ffffff;
+    border: none;
+    color: #000000;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 1.3rem;
+  }
+
+  .number:hover, .backspace:hover {
+    background-color: #ddd;
+  }
+
+  .backspace {
+    background-color: #ffffff;
+  }
+
+  .transfer {
+    background-color: #1d72b8;
+    grid-row: span 2; 
+    grid-column: 4;
+    color: #fff;
+  }
+
+  .transfer:hover {
+    background-color: #1d72b8;
+  }
+
+  .modal-body input {
+    font-size: 2rem;
+    text-align: center;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    outline: none;
+    border-bottom: 2px solid #fff;
+  }
+
+  .loading-overlay, .error-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+  }
+
+  body {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+  }
+
+  .loading-overlay.active, .error-overlay.active {
+    display: flex;
+  }
+
+  .loading-box, .error-box {
+    background-color: #333;
+    padding: 25px;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fas.fa-wallet, .fas.fa-exclamation-circle {
+    font-size: 2.4rem;
+    color: #fff;
+  }
+
+  .payment-text, .error-text {
+    color: #fff;
+    font-size: 1rem;
+    margin-top: 5px;
+  }
+
+  .loading-dots, .error-messages {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+  }
+
+  .loading-dots div {
+    width: 5px;
+    height: 5px;
+    margin: 0 5px;
+    background-color: #fff;
+    border-radius: 50%;
+    animation: showDot 0.5s infinite alternate;
+  }
+
+  .loading-dots div:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  .loading-dots div:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes showDot {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .form-group label {
+    color: #000000;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-group input.form-control {
+    width: 90%;
+    padding: 10px 15px;
+    font-size: 1.2rem;
+    color: #000000;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 10px;
+    box-shadow: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-group input.form-control:focus {
+    border-color: #80bdff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  .navbar {
+  background-color: #ffffff; /* Background color */
+}
+
+.navbar-brand {
+  color: #1d72b8; /* Brand text color */
+  font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+  color: #1d72b8; /* Link text color */
+}
+
+.navbar-nav .nav-link.active {
+  color: #1d72b8; /* Active link text color */
+  font-weight: bold;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #0a549d; /* Hover link text color */
+}
+
+.navbar-toggler {
+  border-color: rgba(29, 114, 184, 0.5); /* Toggler border color */
+}
+
+.navbar-toggler-icon {
+  background-image: url('data:image/svg+xml;charset=utf8,%3Csvg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath stroke="rgba(29, 114, 184, 0.5)" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" d="M4 7h22M4 15h22M4 23h22"/%3E%3C/svg%3E'); /* Toggler icon color */
+}
+
+.navbar-light .navbar-toggler-icon {
+  background-image: url('data:image/svg+xml;charset=utf8,%3Csvg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath stroke="%231d72b8" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" d="M4 7h22M4 15h22M4 23h22"/%3E%3C/svg%3E');
+}
+
+.transfer-amount-container {
+  display: flex;
+  align-items: center;
+  font-size: 36px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
+
+.currency-symbol {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.transfer-amount {
+  flex-grow: 1;
+}
+
+/* Add this to create the green vertical bar */
+.transfer-amount-container::before {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 40px;
+  background-color: #4CAF50;
+  margin-right: 10px;
+}
+
+.number-pad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.number, .transfer {
+  padding: 15px;
+  font-size: 18px;
+  border: none;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.transfer {
+  background-color: #4CAF50;
+  color: white;
+  grid-row: span 2;
+}
+
+.backspace {
+  font-size: 24px;
+}
+
+  </style>
+
 </head>
 
 <body>
+  
 
-  <!-- ========== MAIN CONTENT ========== -->
-   <main class="js-validate form-signin p-5">
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-box">
+    <i class="fas fa-wallet"></i> <span class="payment-text">Rimsle Pay</span>
+    <div class="loading-dots">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  </div>
+</div>
+
+<div class="error-overlay" id="error-overlay" style="display: none;">
+  <div class="error-box">
+    <i class="fas fa-exclamation-circle"></i>
+    <div class="error-messages">
+      <!-- Error messages will be inserted here -->
+    </div>
+  </div>
+</div>
+
+{% if messages %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const errorMessagesContainer = document.querySelector(".error-messages");
+    const errorOverlay = document.getElementById("error-overlay"); // Define errorOverlay here
+
+    // Function to show the error overlay with message and auto-hide after 5 seconds
+    function showErrorOverlay(message) {
+      errorMessagesContainer.innerHTML = `<p>${message}</p>`;
+      errorOverlay.style.display = 'flex';
+
+      // Automatically hide after 5 seconds (adjust time as needed)
+      setTimeout(function() {
+        hideErrorOverlay();
+      }, 5000); // 5000 milliseconds = 5 seconds
+    }
+
+    // Function to hide the error overlay and clear messages
+    function hideErrorOverlay() {
+      errorMessagesContainer.innerHTML = ''; // Clear error messages
+      errorOverlay.style.display = 'none';
+    }
+
+    // Trigger initial display for existing messages
+    {% for message in messages %}
+      showErrorOverlay("{{ message|escapejs }}"); // Display each message
+    {% endfor %}
+  });
+</script>
+{% endif %}
+
+
+
+<!-- ========== MAIN CONTENT ========== -->
+
+<main class="js-validate form-signin p-5">
   <form role="form" action="{% url 'transfer' %}" enctype="multipart/form-data" method="POST">
     {% csrf_token %}
 
+
     <div class="d-sm-flex justify-content-sm-between align-items-sm-center">
       <a class="d-block mb-3 mb-sm-0" href="{% url 'balance' %}">
-        <span class="fa fa-arrow-left mr-2"></span>
-          Wallet
-        </a>   
+        <span class="fa fa-arrow-left lg mr-2"></span>
+      </a>
     </div>
     <br>
 
-    <div class="position-absolute bottom-0  right-0 max-w-50rem w-100 z-index-n1 mx-auto">
-      <img class="img-fluid" src="../../static/svg/components/abstract-shapes-3.svg" alt="Image Description">
-    </div>
 
+
+    <!-- Amount Input (hidden) -->
+    <input type="hidden" id="amount" name="amount">
+
+    <div class="position-absolute bottom-0 right-0 max-w-50rem w-100 z-index-n1 mx-auto">
+      <img class="img-fluid" src="../../static/svg/components/abstract-shapes-4.svg" alt="Image Description">
+    </div>
 
     {% if card_holder %}
-            {% for holder in card_holder %}
-    <!-- Card -->
-    <div class="card bg-img-hero py-4 px-5 mb-5 ie-d-block" style="background-image: url(../../static/wallet/svg/shapes/shape5.svg);">
+    {% for holder in card_holder %}
+    <div class="card bg-img-hero py-2 px-5 mb-5 ie-d-block" style="background-image: url({% static 'wallet/svg/shapes/shape5.svg' %});">
       <div class="media align-items-center">
-        <img class="max-width-10 mr-3" src="../../static/wallet/svg/components/request-quote-blue-icon.svg" alt="Image Description">
+        <img class="max-width-10 mr-3" src="{% static 'wallet/svg/components/wallet-svgrepo-com (1).svg' %}" alt="Image Description">
         <div class="media-body">
-          <h4 class="h3 text-blue mb-0"><strong>{{ holder.balance }} $USD</strong></h4>
-          <p class="mb-0">Transfer balance</p>
+          <h4 class="h5 text-blue mb-0 px-5"><strong>My Wallet</strong></h4>
+          <p class="mb-0 mb-0 px-5">$ {{ holder.balance }}</p>
         </div>
       </div>
     </div>
-    <!-- End Card -->
     {% endfor %}
     {% endif %}
-    
-   {% if messages %}
-    {% for message in messages %}
-      <div class="alert messages {{ message.tags }} alert-dismissible text-danger" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-      </button>
-        {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
 
-     <!-- Form Group -->
-    <div class="js-form-message form-group">
-      <input type="text" class="form-control" name="username" id="signinSrEmail" tabindex="1" placeholder="Enter username" aria-label="Email address" required
-             data-msg="Please enter a valid username">
-    </div>
-    <!-- End Form Group -->
+    <div class="transfer-amount-container">
+  <span class="currency-symbol"></span>
+  <div class="transfer-amount" id="transfer-amount"></div>
+</div>
 
-    <!-- Form Group -->
-    <div class="js-form-message form-group">
-      
-      <input type="number" class="form-control" name="amount" id="signinSrPassword" tabindex="2" placeholder="Enter amount" required
-             data-msg="Please enter invalid amount. Please try again.">
-    </div>
-    <!-- End Form Group -->
-
-    
-    <div class="mb-3">
-      <button type="button" class="btn btn-block btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="">Transfer</button>
+    <!-- Username Input -->
+    <div class="form-group">
+      <input type="text" class="form-control" id="username" name="username" placeholder="Enter recipient username" required>
     </div>
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Enter Passcode</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-              {{ form.verified_pass_code }}
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-outline-primary" data-dismiss="modal">Close</button>
-            <button class="btn btn-sm btn-outline-primary" type="submit">send</button>
-          </div>
-        </div>
-      </div>
-    </div>      
-    
-      <p class="small text-center text-muted mb-0">Provide by &copy; Schkit</p>
+    <div class="number-pad">
+      <button type="button" class="number">1</button>
+      <button type="button" class="number">2</button>
+      <button type="button" class="number">3</button>
+      <button type="button" class="number backspace">⌫</button>
+      <button type="button" class="number">4</button>
+      <button type="button" class="number">5</button>
+      <button type="button" class="number">6</button>
+      <button type="submit" class="transfer">Transfer</button>
+      <button type="button" class="number">7</button>
+      <button type="button" class="number">8</button>
+      <button type="button" class="number">9</button>
+      <button type="button" class="number" style="grid-column: span 2;">0</button>
+      <button type="button" class="number" style="grid-column: span 2;">.</button>
+    </div>
 
-    <!-- End Signin Social Buttons -->
+    <p class="small text-center text-muted mb-0">Creators &copy; Rimsle</p>
   </form>
-  <!-- ========== END MAIN CONTENT ========== -->
+</main>
+<!-- ========== END MAIN CONTENT ========== -->
 
-  <!-- JS Global Compulsory -->
-  <script src="../../static/wallet/vendor/jquery/dist/jquery.min.js"></script>
-  <script src="../../static/wallet/vendor/jquery-migrate/dist/jquery-migrate.min.js"></script>
-  <script src="../../static/wallet/vendor/popper.js/dist/umd/popper.min.js"></script>
-  <script src="../../static/wallet/vendor/bootstrap/bootstrap.min.js"></script>
 
-  <!-- JS Implementing Plugins -->
-  <script src="../../static/wallet/vendor/jquery-validation/dist/jquery.validate.min.js"></script>
 
-  <!-- JS Space -->
-  <script src="../../static/wallet/js/hs.core.js"></script>
-  <script src="../../static/wallet/js/components/hs.validation.js"></script>
-  <script src="../../static/wallet/js/helpers/hs.focus-state.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const transferAmountDisplay = document.getElementById("transfer-amount");
+  const amountInput = document.getElementById("amount");
+  const numberButtons = document.querySelectorAll(".number");
+  const usernameInput = document.getElementById("username");
+  const loadingOverlay = document.getElementById("loading-overlay");
+  const errorOverlay = document.getElementById("error-overlay");
+  const errorMessagesContainer = document.querySelector(".error-messages");
 
-  <!-- JS Plugins Init. -->
+  function updateHiddenInput() {
+    amountInput.value = transferAmountDisplay.textContent.replace("$", "");
+  }
 
-  <script type="text/javascript"> 
-    $('#exampleModal').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget) // Button that triggered the modal
-    var recipient = button.data('whatever') // Extract info from data-* attributes
-    // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-    // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-    var modal = $(this)
-    modal.find('.modal-title').text('Enter Passcode')
-    modal.find('.modal-body input').val(recipient)
-    })
-            /* Because i didnt set placeholder values in forms.py they will be set here using vanilla Javascript
-    //We start indexing at one because CSRF_token is considered and input field 
-     */
-
-    //Query All input fields
-    var form_fields = document.getElementsByTagName('input')
-    form_fields[1].placeholder='Enter username';
-    form_fields[2].placeholder='Enter amount';
-    form_fields[3].placeholder='** **';
-    
-
-    for (var field in form_fields){ 
-      form_fields[field].className += ' form-control'
+  function appendNumber(button) {
+    if (transferAmountDisplay.textContent === "$0.00" || transferAmountDisplay.textContent === "$") {
+      transferAmountDisplay.textContent = "$" + button.textContent;
+    } else {
+      transferAmountDisplay.textContent += button.textContent;
     }
-  </script>
+    updateHiddenInput();
+  }
+
+  function handleBackspace() {
+    if (transferAmountDisplay.textContent.length > 1) {
+      transferAmountDisplay.textContent = transferAmountDisplay.textContent.slice(0, -1);
+    } else {
+      transferAmountDisplay.textContent = "$0.00";
+    }
+    updateHiddenInput();
+  }
+
+  numberButtons.forEach(function(button) {
+    button.addEventListener("click", function() {
+      if (button.classList.contains("backspace")) {
+        handleBackspace();
+      } else {
+        appendNumber(button);
+      }
+
+      if (transferAmountDisplay.textContent === "$") {
+        transferAmountDisplay.textContent = "$0.00";
+      }
+    });
+  });
+
+  function showLoadingOverlay() {
+    loadingOverlay.style.display = 'flex';
+  }
+
+  function hideLoadingOverlay() {
+    loadingOverlay.style.display = 'none';
+  }
+
+  function showErrorOverlay(messages) {
+    errorMessagesContainer.innerHTML = "";
+
+    messages.forEach(function(message) {
+      const p = document.createElement('p');
+      p.textContent = message;
+      errorMessagesContainer.appendChild(p);
+    });
+
+    errorOverlay.style.display = 'flex';
+
+    setTimeout(function() {
+      hideErrorOverlay();
+    }, 3000); // Adjust the delay time as needed
+  }
+
+  function hideErrorOverlay() {
+    errorMessagesContainer.innerHTML = '';
+    errorOverlay.style.display = 'none';
+  }
+
+  function validateInputs() {
+    hideErrorOverlay();
+
+    let errors = [];
+
+    if (usernameInput.value.trim() === "") {
+      errors.push("Enter username.");
+    }
+
+    const amountValue = amountInput.value.trim();
+    if (!amountValue || isNaN(amountValue) || parseFloat(amountValue) <= 0) {
+      errors.push("Enter a valid amount.");
+    }
+
+    if (errors.length > 0) {
+      showErrorOverlay(errors);
+      return false;
+    }
+
+    return true;
+  }
+
+  document.querySelector('.transfer').addEventListener('click', function(event) {
+    event.preventDefault();
+
+    if (!validateInputs()) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('username', usernameInput.value.trim());
+    formData.append('amount', amountInput.value.trim());
+
+    showLoadingOverlay();
+
+    fetch('/wellet/transfer/', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest' // Mark this request as an AJAX request
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      setTimeout(() => { // Set a timer for the loading effect
+        hideLoadingOverlay();
+        if (data.success) {
+          window.location.href = '/wellet/verify_passcode/';
+        } else {
+          showErrorOverlay([data.error || 'An unknown error occurred. Please try again.']);
+        }
+      }, 2000); // Adjust the delay time as needed
+    })
+    .catch(error => {
+      setTimeout(() => { // Set a timer for the loading effect
+        hideLoadingOverlay();
+        console.error('Error:', error);
+        showErrorOverlay(['An error occurred. Please try again.']);
+      }, 1000); // Adjust the delay time as needed
+    });
+  });
+
+  function getCookie(name) {
+    const cookieValue = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return cookieValue ? cookieValue.pop() : '';
+  }
+});
+
+
+</script>
+
+
+<!-- JS Global Compulsory -->
+<script src="{% static 'wallet/vendor/jquery/dist/jquery.min.js' %}"></script>
+<script src="{% static 'wallet/vendor/jquery-migrate/dist/jquery-migrate.min.js' %}"></script>
+<script src="{% static 'wallet/vendor/popper.js/dist/umd/popper.min.js' %}"></script>
+<script src="{% static 'wallet/vendor/bootstrap/bootstrap.min.js' %}"></script>
+
+<!-- JS Implementing Plugins -->
+<script src="{% static 'wallet/vendor/jquery-validation/dist/jquery.validate.min.js' %}"></script>
+
+<!-- JS Space -->
+<script src="{% static 'wallet/js/hs.core.js' %}"></script>
+<script src="{% static 'wallet/js/components/hs.validation.js' %}"></script>
+<script src="{% static 'wallet/js/helpers/hs.focus-state.js' %}"></script>
+
 </body>
 </html>
-
-
-
